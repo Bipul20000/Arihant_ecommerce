@@ -4,15 +4,35 @@ const productSchema = new mongoose.Schema({
     name: {type:String, required: true },
     description: {type:String, required: true },
     price: {type:Number, required: true },
-    image: {type:Array, required: true },
+    // CHANGED: Removed 'required: true' and added 'default: []'
+    image: {type:Array, default: [] }, 
     category: {type:String, required: true },
     subCategory: {type:String, required: true },
     sizes: {type:Array, required: true },
     bestseller: {type:Boolean },
     date: {type:Number, required: true }
 })
-// since we can get error if we run and create model again and again
+
 const productModel = mongoose.models.product || mongoose.model("product", productSchema);
 
 export default productModel;
+
+
+// import mongoose from "mongoose";
+
+// const productSchema = new mongoose.Schema({
+//     name: {type:String, required: true },
+//     description: {type:String, required: true },
+//     price: {type:Number, required: true },
+//     image: {type:Array, required: true },
+//     category: {type:String, required: true },
+//     subCategory: {type:String, required: true },
+//     sizes: {type:Array, required: true },
+//     bestseller: {type:Boolean },
+//     date: {type:Number, required: true }
+// })
+// // since we can get error if we run and create model again and again
+// const productModel = mongoose.models.product || mongoose.model("product", productSchema);
+
+// export default productModel;
 
