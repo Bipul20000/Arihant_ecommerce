@@ -1,15 +1,62 @@
-import React, { useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { assets } from '../assets/assets' // Ensure you have an image to use
+import { ShopContext } from '../context/ShopContext';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const Login = () => {
 
   const [currentState, setCurrentState] = useState('Login');
+  const {token,setToken, navigate, backendUrl} = useContext(ShopContext);
+
+  const[name,setName] = useState('');
+  const[password,setPassword] = useState('');
+  const[email,setEmail] = useState('');
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
+    try {
+      if (currentState==='Sign Up') {
+        
+        const response = await axios.post(backendUrl + '/api/user/register', {name,email,password})
+        // console.log(response.data);
+        if(response.data.success){
+          setToken(response.data.token)
+          localStorage.setItem('token', response.data.token)
+        } else{
+          toast.error(response.data.message)
+        }
+        
+      }
+      else{
+
+          const response = await axios.post(backendUrl + '/api/user/login', {email, password})
+          // console.log(response.data);
+          if(response.data.success){
+            setToken(response.data.token)
+            localStorage.setItem('token', response.data.token)
+          }
+          else{
+            toast.error(response.data.message)
+          }
+
+          
+
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+      
+    }
     // Your backend logic will go here later
-    console.log("Form Submitted"); 
+    // console.log("Form Submitted"); 
   }
+
+  useEffect(()=>{
+    if(token){
+      navigate('/')
+    }
+  },[token])
 
   return (
     <div className='min-h-[80vh] flex items-center justify-center w-full'>
@@ -41,6 +88,8 @@ const Login = () => {
             {/* Name Input - Only shows if Sign Up */}
             {currentState === 'Login' ? '' : (
               <input 
+              onChange={(e)=>setName(e.target.value)}
+              value = {name}
                 type="text" 
                 className='w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:border-black transition-colors' 
                 placeholder='Full Name' 
@@ -49,6 +98,8 @@ const Login = () => {
             )}
 
             <input 
+            onChange={(e)=>setEmail(e.target.value)}
+              value = {email}
               type="email" 
               className='w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:border-black transition-colors' 
               placeholder='Email Address' 
@@ -56,6 +107,8 @@ const Login = () => {
             />
             
             <input 
+            onChange={(e)=>setPassword(e.target.value)}
+              value = {password}
               type="password" 
               className='w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:border-black transition-colors' 
               placeholder='Password' 

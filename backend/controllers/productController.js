@@ -9,6 +9,11 @@ const addProduct = async (req, res) => {
     try {
         const {name,description, price, category, subCategory, sizes, bestseller} = req.body
 
+        const existingProduct = await productModel.findOne({ name });
+        if (existingProduct) {
+            return res.json({ success: false, message: "Product already exists!" });
+        }
+
         const image1 = req.files.image1 && req.files.image1[0]
         const image2 = req.files.image2 && req.files.image2[0]
         const image3 = req.files.image3 && req.files.image3[0]
@@ -83,20 +88,40 @@ const singleProduct = async (req, res) => {
     }
 }
 
-// --- NEW: Function for Bulk Upload (CSV) ---
+// --- NEW: Smart Bulk Upload (Skips Duplicates) ---
 const addBulkProducts = async (req, res) => {
     try {
-        const products = req.body.products; // Expects an array of objects from Frontend
-        
-        // Add timestamp to each product and ensure image array exists
-        const productsWithDate = products.map(prod => ({
+        const products = req.body.products; 
+
+        // 1. Extract all names from the incoming CSV
+        const incomingNames = products.map(p => p.name);
+
+        // 2. Find which of these names ALREADY exist in your Database
+        const existingDbProducts = await productModel.find({ name: { $in: incomingNames } });
+        const existingNamesSet = new Set(existingDbProducts.map(p => p.name));
+
+        // 3. Filter: Keep only products that are NOT in the existing set
+        const newProducts = products.filter(p => !existingNamesSet.has(p.name));
+
+        // 4. If everything is a duplicate, stop here
+        if (newProducts.length === 0) {
+            return res.json({ success: false, message: "All products already exist. No new items added." });
+        }
+
+        // 5. Prepare the NEW products (add dates, empty images)
+        const productsWithDate = newProducts.map(prod => ({
             ...prod,
             date: Date.now(),
             image: prod.image || [] 
         }));
 
+        // 6. Insert only the new ones
         await productModel.insertMany(productsWithDate);
-        res.json({ success: true, message: `${products.length} Products Added Successfully` });
+
+        res.json({ 
+            success: true, 
+            message: `Success! Added ${newProducts.length} new items. Skipped ${existingNamesSet.size} duplicates.` 
+        });
 
     } catch (error) {
         console.log(error);
