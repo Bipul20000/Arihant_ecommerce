@@ -11,9 +11,9 @@ const Footer = () => {
         <img src={assets.logo} className='w-32' alt="Arihant Logo" />
     </div>
     <p className='w-full md:w-2/3 text-gray-600 leading-6'>
-      123, Fashion Street, Near Gandhi Maidan, <br />
-      Patna, Bihar - 800001 <br />
-      India <br />
+      Shree Krishna Market <br />
+      Shiv Mandir Chowk, Bada Bazzar, Ktihar<br />
+      Bihar - 854105<br />
       <span className='block mt-2 font-medium'>
         contact@arihant.com
       </span>
@@ -31,7 +31,7 @@ const Footer = () => {
         <div>
     <p className='text-xl font-medium mb-5'>GET IN TOUCH</p>
     <ul className='flex flex-col gap-1 text-gray-600'>
-      <li>+91-63700-67724</li>
+      <li>+91-77070-29206</li>
       <li>support@arihant.com</li>
     </ul>
   </div>
