@@ -1,4 +1,5 @@
-import React, { useContext, useState } from 'react'
+// import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import Title from '../components/Title'
 import CartTotal from '../components/CartTotal'
 import { assets } from '../assets/assets'
@@ -10,6 +11,7 @@ const PlaceOrder = () => {
 
   const [method, setMethod] = useState('cod');
   const {navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products} = useContext(ShopContext);
+  const [savedAddresses, setSavedAddresses] = useState([]);
   const [formData, setFormData] = useState({
     firstName:'',
     lastName:'',
@@ -21,6 +23,31 @@ const PlaceOrder = () => {
     country:'',
     phone:''
   })
+
+  // 👇 NEW: Fetch addresses when page loads
+  useEffect(() => {
+    if (token) {
+        const fetchAddresses = async () => {
+            try {
+                const response = await axios.post(backendUrl + '/api/user/get-addresses', {}, { headers: { token } });
+                if (response.data.success) {
+                    setSavedAddresses(response.data.addresses);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        fetchAddresses();
+    }
+  }, [token, backendUrl]);
+
+  // 👇 NEW: Function to fill form when address is clicked
+  const handleSelectAddress = (address) => {
+    // Exclude the 'id' field so it doesn't mess up the form
+    const { id, ...addressData } = address;
+    setFormData(addressData);
+    toast.success("Address Auto-filled!");
+  }
 
   const onChangeHandler = (event) => {
     const name = event.target.name;
@@ -116,7 +143,7 @@ switch (method) {
             if (responseRazorpay.data.success) {
               initPay(responseRazorpay.data.order); // Open the popup
             }else{
-          toast.error(responseStripe.data.message)
+          toast.error(responseRazorpay.data.message)
         }
             break;
 
@@ -140,6 +167,26 @@ switch (method) {
           <div className='text-xl sm:text-2xl my-3'>
             <Title text1={'DELIVERY'} text2={'INFORMATION'}/>
           </div>
+          {/* --- SAVED ADDRESS SELECTOR START --- */}
+            {savedAddresses.length > 0 && (
+                <div className='mb-3'>
+                    <p className='text-sm font-medium text-gray-500 mb-2'>Select from saved addresses:</p>
+                    <div className='flex gap-3 overflow-x-auto pb-2 no-scrollbar'>
+                        {savedAddresses.map((addr, index) => (
+                            <div 
+                                key={index} 
+                                onClick={() => handleSelectAddress(addr)}
+                                className='min-w-[150px] border p-3 rounded-md cursor-pointer hover:border-black hover:bg-gray-50 transition-colors flex-shrink-0'
+                            >
+                                <p className='font-bold text-sm'>{addr.firstName} {addr.lastName}</p>
+                                <p className='text-xs truncate text-gray-600'>{addr.street}</p>
+                                <p className='text-xs text-gray-500'>{addr.city}, {addr.state}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+            {/* --- SAVED ADDRESS SELECTOR END --- */}
 
             <div className='flex gap-3'>
                 <input required onChange={onChangeHandler} name='firstName' value={formData.firstName} className='border border-gray-300 rounded py-1.5 px-3.5 w-full' type="text" placeholder='First Name'/>

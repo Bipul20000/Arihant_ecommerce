@@ -97,5 +97,62 @@ const adminLogin = async (req,res) => {
     // res.json({msg:"Admin API Working"})
 }
 
+// Add a new address
+const addAddress = async (req, res) => {
+    try {
+        const { userId, address } = req.body;
+        // Add unique ID to address for deletion later
+        address.id = Date.now().toString(); 
+        
+        await userModel.findByIdAndUpdate(userId, { 
+            $push: { addresses: address } 
+        });
+        
+        res.json({ success: true, message: "Address Added" });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+}
 
-export {loginUser, registerUser, adminLogin}
+// Get all addresses
+const getAddresses = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const user = await userModel.findById(userId);
+        res.json({ success: true, addresses: user.addresses });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+}
+
+// Delete an address
+const deleteAddress = async (req, res) => {
+    try {
+        const { userId, addressId } = req.body;
+        await userModel.findByIdAndUpdate(userId, {
+            $pull: { addresses: { id: addressId } }
+        });
+        res.json({ success: true, message: "Address Removed" });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+}
+
+// Update Profile (Name/Email)
+const updateProfile = async (req, res) => {
+    try {
+        const { userId, name, email } = req.body;
+        await userModel.findByIdAndUpdate(userId, { name, email });
+        res.json({ success: true, message: "Profile Updated" });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+}
+
+
+// export {loginUser, registerUser, adminLogin}
+export { loginUser, registerUser, adminLogin, addAddress, getAddresses, deleteAddress, updateProfile }

@@ -17,6 +17,8 @@ const ShopContextProvider = (props) => {
     const [cartItems, setCartItems] = useState({});
     const [products, setProducts] = useState([]);
     const [token, setToken] = useState('');
+    // 👇 1. ADD: State to control the Cart Drawer
+    const [showCart, setShowCart] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -54,7 +56,8 @@ const ShopContextProvider = (props) => {
             cartData[itemId][size] = 1;
         }
         setCartItems(cartData);
-
+// 👇 2. ADD: Open the cart drawer automatically when item is added
+        setShowCart(true);
         // here
         if (token) {
             try {
@@ -177,7 +180,7 @@ const getCartCount = () => {
         cartItems, addToCart, setCartItems,
         getCartCount, updateQuantity,
         getCartAmount, navigate, backendUrl,
-        setToken, token
+        setToken, token,showCart, setShowCart
     }
 
     return (
