@@ -37,9 +37,9 @@ const Contact = () => {
                              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                         </svg>
                         <p className='leading-relaxed'>
-                            Arihant Lifestyles <br /> 
-                            Suite 350, Gandhi Maidan Road, <br />
-                            Patna, Bihar - 800001
+                            Shree Krishna Market <br />
+                            Shiv Mandir Chowk, Bada Bazzar, Ktihar<br />
+                            Bihar - 854105
                         </p>
                     </div>
 
